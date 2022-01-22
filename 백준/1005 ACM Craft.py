@@ -1,43 +1,46 @@
 import sys
 from collections import deque
 
-t = int(sys.stdin.readline().rstrip())
+input = sys.stdin.readline
 
-result = []
+t = int(input().rstrip())
 
 for _ in range(t):
-    n, k = map(int,sys.stdin.readline().rstrip().split(' '))
-    time = list(map(int,sys.stdin.readline().rstrip().split(' ')))
+    n,k = map(int, input().rstrip().split())
+    times = list(map(int,input().rstrip().split()))
+    max_times = [0 for _ in range(n+1)]
 
-    time.insert(0,0)
-    graph =[[] for _ in range(n+1)]
+    times.insert(0,0)
+    graph_in = [0 for _ in range(n+1)]
+    graph = [[] for _ in range(n+1)]
 
-    x,y = map(int,sys.stdin.readline().rstrip().split(' '))
-    graph[x].append(y)
-    start = x
-
-    for _ in range(k-1):
-        x,y = map(int,sys.stdin.readline().rstrip().split(' '))
+    for _ in range(k):
+        x,y = map(int,input().rstrip().split())
+        graph_in[y] += 1
         graph[x].append(y)
 
-    lastb = int(sys.stdin.readline().rstrip())
+    w = int(input().rstrip())
 
-    queue = deque([[start, time[start]]])
-    visited = [0 for _ in range(n+1)]
-    visited[start] = time[start]
-    while (True):
-        now_b, now_time = queue.popleft()
-        if now_b == lastb:
+    queue = deque([])
+
+    for i in range(1,n+1):
+        if graph_in[i] == 0:
+            queue.append(i)
+            max_times[i] = times[i]
+
+    result = 0
+
+    while queue:
+        now_i = queue.popleft()
+
+        if now_i ==w:
             break
 
-        for i in graph[now_b]:
-            if visited[i] == 0:
-                visited[i] = now_time + time[i]
-                queue.append([i,visited[i]])
-            elif visited[i] < now_time + time[i]:
-                visited[i] = now_time + time[i]
-                queue.append([i,visited[i]])
+        for next in graph[now_i]:
+            graph_in[next] -= 1
+            max_times[next] = max(max_times[next],max_times[now_i] + times[next])
+            if graph_in[next]==0:
+                queue.append(next)
 
-    result.append(visited[lastb])
 
-print(result)
+    print(max_times[w])
