@@ -1,61 +1,64 @@
 import sys
+from collections import deque
 
-input_list = list(sys.stdin.readline().rstrip())
+input = sys.stdin.readline
 
-left = []
-right = []
+raw_input = list(input().rstrip())
+inputs = []
+front_num = ""
+
+for i in raw_input:
+    if i == "(" or i == "[" or i == "]" or i==")":
+        if front_num != "":
+            inputs.append(int(front_num))
+            front_num = ""
+        inputs.append(i)
+    else:
+        front_num += i
 
 result = 0
-l_count = 0
-r_count = 0
+queue = deque([])
+check = True
 
-result_list = []
-for i in input_list:
-    if i == '(' or i == '[':
-        left.append(i)
-        l_count += 1
+for i in inputs:
+    now_result = 1
+    if i == ")" or i == "]":
+        if len(queue) == 0:
+            check = False
+            break
+
+        now = queue.pop()
+        if now != "(" and now != "[":
+            now_result = now
+            if len(queue) == 0:
+                check = False
+                break
+            now = queue.pop()
+
+        if i == ")" and now == "(":
+            now_result *= 2
+        elif i == "]" and now == "[":
+            now_result *= 3
+        else:
+            check = False
+            break
+
+        while queue:
+            now = queue.pop()
+            if now == "(" or now == "[" or now == ")" or now == "]":
+                queue.append(now)
+                break
+            else:
+                now_result += now
+        
+        queue.append(now_result)
     else:
-        right.append(i)
-        r_count += 1
+        queue.append(i)
 
-    if l_count<r_count:
-        print(0)
-        break
-
-    if i == ')':
-        mr = 0
-        l = left.pop()
-        r = right.pop()
-        while (l != '('):
-            if type(l) != int:
-                print(0)
-                sys.exit()
-            mr += l
-            l = left.pop()
-        
-        if mr == 0:
-            mr = 1
-        mr *= 2
-        left.append(mr)
-    
-    elif i == ']':
-        mr = 0
-        l = left.pop()
-        r = right.pop()
-        while (l != '['):
-            if type(l) != int:
-                print(0)
-                sys.exit()
-            mr += l
-            l = left.pop()
-        
-        if mr == 0:
-            mr = 1
-        mr *= 3
-        left.append(mr)
-
-if l_count != r_count:
+if check == False or len(queue) != 1:
     print(0)
-    sys.exit()
-
-print(sum(left))
+else:
+    if queue[0] == "(" or queue[0] == ")" or queue[0] == "[" or queue[0]=="]":
+        print(0)
+    else:
+        print(queue[0])
