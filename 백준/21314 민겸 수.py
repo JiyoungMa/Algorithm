@@ -19,8 +19,9 @@ for s in range(len(string_split)-1):
 
 now_str = string_split[-1]
 if len(now_str) != 0 : 
-    mcount = len(string_split[s])
-    maximum += ''.join(["1"]*len(now_str))
+    mcount = len(now_str)
+    now_list = ["1"]*len(now_str)
+    maximum += ''.join(now_list)
     minimum += str(10**(len(now_str)-1))
 
 print(maximum)
